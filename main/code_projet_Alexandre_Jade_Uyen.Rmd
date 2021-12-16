@@ -5,7 +5,7 @@ date: "16/12/2021"
 output: html_document
 ---
   
-  # Libraries
+# Libraries
 ```{r}
 library(rjags)
 library(coda)
