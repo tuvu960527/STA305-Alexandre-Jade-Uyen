@@ -5,7 +5,7 @@ date: "16/12/2021"
 output: html_document
 ---
   
-# Libraries
+  # Libraries
 ```{r}
 library(rjags)
 library(coda)
@@ -31,7 +31,7 @@ Suivi du code :
 ```{r}
 obs <- rbinom(n = 170, size = 1, p = 8/170)
 
-jags0 <- jags.model("mod5.txt", n.chains = 3, data = list("obs" = obs, "N_cas" = length(obs)))
+jags0 <- jags.model("mod5.txt", data = list("obs" = obs, "N_cas" = length(obs)))
 
 ech_post <- coda.samples(jags0, variable.names = c("eff"), n.iter = 3000)
 ```
@@ -199,7 +199,7 @@ Voici le code :
 ```{r}
 obs <- rbinom(n = 170, size = 1, p = 8/170)
 
-jags2 <- jags.model("mod6.txt", n.chains = 3, data = list("obs" = obs, "N_cas" = length(obs)))
+jags2 <- jags.model("mod6.txt", data = list("obs" = obs, "N_cas" = length(obs)))
 
 ech_post3 <- coda.samples(jags2, variable.names = c("theta", "eff"), n.iter = 3000)
 
@@ -248,8 +248,3 @@ resum3$statistics["eff", "Mean"]
 
 hdi(ech_post3)
 ```
-
-
-
-
-
