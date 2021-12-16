@@ -200,7 +200,6 @@ Voici le code :
 obs <- rbinom(n = 170, size = 1, p = 8/170)
 
 jags2 <- jags.model("mod6.txt", data = list("obs" = obs, "N_cas" = length(obs)))
-
 ech_post3 <- coda.samples(jags2, variable.names = c("eff"), n.iter = 3000)
 
 plot(ech_post3)
@@ -237,6 +236,17 @@ eff <- 1-parm
 Voici le code :
   
 ```{r}
+n_v = 17411
+n_p = 17511
+
+theta_v <- 8/n_v
+theta_p <- 162/n_p
+
+parm <- 0.95 # calculer comme 1 - (cas chez vaccinés / ca chez placebo)
+
+obs_v <- rbinom(n = n_v, size = 1, p = theta_v)
+obs_p <- rbinom(n = n_p, size = 1, p = theta_p * parm)
+
 jags3 <- jags.model("proj_mod2.txt", n.chains = 3, data = list("obs_v" = obs_v, "obs_p" = obs_p, "N_v" = length(obs_v), "N_p" = length(obs_p)))
 
 ech_post4 <- coda.samples(jags3, variable.names = c("theta", "eff"), n.iter = 3000)
@@ -246,5 +256,5 @@ plot(ech_post4)
 resum3 <- summary(ech_post4)
 resum3$statistics["eff", "Mean"]
 
-hdi(ech_post3)
+hdi(ech_post4)
 ```
