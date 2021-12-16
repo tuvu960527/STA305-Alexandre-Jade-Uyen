@@ -4,6 +4,13 @@ author: "Alexandre, Uyen et Jade"
 date: "16/12/2021"
 output: html_document
 ---
+  
+  # Libraries
+```{r}
+library(rjags)
+library(coda)
+library(HDInterval)
+```
 
 ## Code BUGS
 
@@ -20,11 +27,11 @@ model{
 }
 
 Suivi du code : 
-
+  
 ```{r}
 obs <- rbinom(n = 170, size = 1, p = 8/170)
 
-jags0 <- jags.model("mod5.txt", data = list("obs" = obs, "N_cas" = length(obs)))
+jags0 <- jags.model("mod5.txt", n.chains = 3, data = list("obs" = obs, "N_cas" = length(obs)))
 
 ech_post <- coda.samples(jags0, variable.names = c("eff"), n.iter = 3000)
 ```
@@ -51,11 +58,12 @@ autocorr.plot(ech_post)
 
 
 L'efficacité du vaccin estimée et son interval de crédibilité :
-
+  
 ```{r}
 #valeur
 resum <- summary(ech_post)
-resum$statistics["eff", "Mean"]
+resum
+#resum$statistics["eff", "Mean"]
 
 #interval de crédibilité des taux d'incidences
 hdi(ech_post)
@@ -86,13 +94,13 @@ model{
   log_parm~dnorm(0, 0.1)
   
   # Variables d'interet
-  parm <- exp(log_parm)
-  eff <- 1-parm
+parm <- exp(log_parm)
+eff <- 1-parm
 }
 
 
 Le code sur R :
-
+  
 ```{r}
 n_v = 17411
 n_p = 17511
@@ -108,15 +116,15 @@ obs_p <- rbinom(n = n_p, size = 1, p = theta_p * parm)
 
 jags1 <- jags.model("proj_mod.txt", n.chains = 3, data = list("obs_v" = obs_v, "obs_p" = obs_p, "N_v" = length(obs_v), "N_p" = length(obs_p)))
 
-ech_post <- coda.samples(jags1, variable.names = c("theta", "eff"), n.iter = 3000)
+ech_post1 <- coda.samples(jags1, variable.names = c("theta", "eff"), n.iter = 3000)
 ```
 
 
 Voici ce qu'on obtient :
 
 ```{r}
-summary(ech_post)
-plot(ech_post)
+summary(ech_post1)
+plot(ech_post1)
 ```
 
 
@@ -124,53 +132,51 @@ La convergence et autocorrélation :
 
 ```{r}
 #convergence
-effectiveSize(ech_post)
-cumuplot(ech_post)
+effectiveSize(ech_post1)
+cumuplot(ech_post1)
 
 #autocorrélation
-autocorr.plot(ech_post)
+autocorr.plot(ech_post1)
 ```
 
 
 Comme il y a de l'autocorrélation, augmentation du nombre d'itération et concervation d'un valeur sur 5 :
+
 ```{r}
-ech_post1 <- coda.samples(jags1, variable.names = c("theta", "eff"), n.iter = 10000, thin = 5)
+ech_post2 <- coda.samples(jags1, variable.names = c("theta", "eff"), n.iter = 10000, thin = 5)
 ```
 
 Voici les résultats : 
 ```{r}
-plot(ech_post1)
+plot(ech_post2)
 
-summary(ech_post1)
+summary(ech_post2)
 ```
 
 
 Le convergence et l'autocorrélation :
 
 ```{r}
-gelman.plot(ech_post1)
+gelman.plot(ech_post2)
 
-autocorr.plot(ech_post1)
+autocorr.plot(ech_post2)
 ```
 
 
 La valeur et son interval de crédibilité :
 
 ```{r}
-resum1 <- summary(ech_post1)
+resum1 <- summary(ech_post2)
 resum1$statistics["eff", "Mean"]
 
-hdi(ech_post1)
+hdi(ech_post2)
 ```
 
 Probabilité de l'efficacité du vaccin supérieur à 30 ?
-
+  
 ```{r}
-sum(ech_post[[1]][,1] > 0.3)/length(ech_post[[1]][,1])
+sum(ech_post2[[1]][,1] > 0.3)/length(ech_post2[[1]][,1])
 ```
-
-
-
 
 ## Etude de sensibilité 
 
@@ -191,16 +197,19 @@ model{
 Voici le code :
 
 ```{r}
-jags2 <- jags.model("mod6.txt", data = list("obs_v" = obs_v, "obs_p" = obs_p, "N_v" = length(obs_v), "N_p" = length(obs_p)))
+obs <- rbinom(n = 170, size = 1, p = 8/170)
 
-ech_post2 <- coda.samples(jags2, variable.names = c("theta", "eff"), n.iter = 2000)
+jags2 <- jags.model("mod6.txt", n.chains = 3, data = list("obs" = obs, "N_cas" = length(obs)))
 
-plot(ech_post2)
+ech_post3 <- coda.samples(jags2, variable.names = c("theta", "eff"), n.iter = 3000)
 
-resum2 <- summary(ech_post2)
-resum2$statistics["eff", "Mean"]
+plot(ech_post3)
 
-hdi(ech_post2)
+resum2 <- summary(ech_post3)
+resum2
+#resum2$statistics["eff", "Mean"]
+
+hdi(ech_post3)
 ```
 
 
@@ -221,23 +230,23 @@ model{
   log_parm~dnorm(0, 0.1)
   
   # Variables d'interet
-  parm <- exp(log_parm)
-  eff <- 1-parm
+parm <- exp(log_parm)
+eff <- 1-parm
 }
 
 Voici le code :
-
+  
 ```{r}
-jags2 <- jags.model("proj_mod2.txt", data = list("obs_v" = obs_v, "obs_p" = obs_p, "N_v" = length(obs_v), "N_p" = length(obs_p)))
+jags3 <- jags.model("proj_mod2.txt", n.chains = 3, data = list("obs_v" = obs_v, "obs_p" = obs_p, "N_v" = length(obs_v), "N_p" = length(obs_p)))
 
-ech_post2 <- coda.samples(jags2, variable.names = c("theta", "eff"), n.iter = 2000)
+ech_post4 <- coda.samples(jags3, variable.names = c("theta", "eff"), n.iter = 3000)
 
-plot(ech_post2)
+plot(ech_post4)
 
-resum2 <- summary(ech_post2)
-resum2$statistics["eff", "Mean"]
+resum3 <- summary(ech_post4)
+resum3$statistics["eff", "Mean"]
 
-hdi(ech_post2)
+hdi(ech_post3)
 ```
 
 
