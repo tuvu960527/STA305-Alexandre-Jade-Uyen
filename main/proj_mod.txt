@@ -1,0 +1,19 @@
+# Modèle
+model{
+  # Vraisemblance
+  for (i in 1:N_v){
+  obs_v[i]~dbern(theta*parm)
+  }
+
+  for(i in 1:N_p) {
+  obs_p[i]~dbern(theta)
+  }
+
+  # A priori
+  theta~dbeta(0.700102, 1)   
+  log_parm~dnorm(0, 0.1)
+  
+  # Variables d'interet
+  parm <- exp(log_parm)
+  eff <- 1-parm
+}

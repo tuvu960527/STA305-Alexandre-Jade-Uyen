@@ -1,0 +1,10 @@
+
+model{
+  # Vraisemblance
+  for (i in 1:N_cas){ 
+    obs[i]~dbern(theta)
+  }
+  # A priori
+  theta~dunif(0, 1)
+  eff <- 1-(theta/(1-theta))  
+}
