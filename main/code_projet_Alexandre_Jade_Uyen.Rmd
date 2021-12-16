@@ -201,7 +201,7 @@ obs <- rbinom(n = 170, size = 1, p = 8/170)
 
 jags2 <- jags.model("mod6.txt", data = list("obs" = obs, "N_cas" = length(obs)))
 
-ech_post3 <- coda.samples(jags2, variable.names = c("theta", "eff"), n.iter = 3000)
+ech_post3 <- coda.samples(jags2, variable.names = c("eff"), n.iter = 3000)
 
 plot(ech_post3)
 
